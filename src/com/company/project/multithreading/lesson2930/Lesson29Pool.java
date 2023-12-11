@@ -1,4 +1,4 @@
-package com.company.project.multithreading.lesson29;
+package com.company.project.multithreading.lesson2930;
 
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ThreadPoolExecutor;

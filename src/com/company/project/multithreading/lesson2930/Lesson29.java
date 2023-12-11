@@ -1,5 +1,6 @@
-package com.company.project.multithreading.lesson29;
+package com.company.project.multithreading.lesson2930;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -156,7 +157,8 @@ public class Lesson29 {
         int maxThreads = Runtime.getRuntime().availableProcessors();
 
         ExecutorService stealingPool = Executors.newWorkStealingPool();
-        stealingPool.execute(()->{});
+        stealingPool.execute(() -> {
+        });
         // ExecutorService stealingPool = Executors.newWorkStealingPool(3);
         // t1 -> taskqueue
         // t2 -> taskqueue
@@ -164,6 +166,52 @@ public class Lesson29 {
 
         // и другие методы ExecutorService
 
+        FileFinder fileFinder = new FileFinder(
+                new File("file.txt"),
+                new File("C:\\Users\\DARYA\\files\\JAVA-JUNIOR\\java-lessons\\java-core-lessons"));
+        ForkJoinPool forkJoinPool = ForkJoinPool.commonPool();
+        forkJoinPool.invoke(fileFinder);
+
+        try {
+            File file = fileFinder.get();
+        } catch (InterruptedException | ExecutionException e) {
+            throw new RuntimeException(e);
+        }
+
+        // [fileFinder,
+        // fileFinder(.idea),
+        // fileFinder(out),
+        // fileFinder(src), -> fileFinder(lesson01), fileFinder(lesson02)
+        // ]
+
+        ScheduledExecutorService scheduledService01 =
+                Executors.newScheduledThreadPool(2);
+        scheduledService01.scheduleAtFixedRate(() -> {
+                    // Runnable
+                    System.out.println("Задача, которая " +
+                            "должна выполняться каждые 3 минуты");
+                },
+                0,
+                3, TimeUnit.MINUTES);
+
+        scheduledService01.scheduleWithFixedDelay(
+                () -> {
+                    // Runnable
+                    System.out.println("Задача, которая " +
+                            "должна выполняться каждые 3 минуты" +
+                            "после окончания предыдущей");
+                },
+                0,
+                3, TimeUnit.MINUTES
+        );
+        scheduledService01.schedule(() -> {
+                    // Runnable | Callable
+                    System.out.println("Задача, которая " +
+                            "выполнится через 5 минут");
+                },
+                5, TimeUnit.MINUTES);
+
+        scheduledService01.shutdown();
 
     }
 }

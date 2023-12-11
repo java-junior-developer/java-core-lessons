@@ -86,7 +86,7 @@ public class Lesson29 {
 
         // пулы потоков
         ExecutorService service = Executors.newFixedThreadPool(3);
-        service.execute(()->{
+        service.execute(() -> {
             System.out.println("Задача №1");
         });
         service.execute(service01);
@@ -101,7 +101,69 @@ public class Lesson29 {
                 new ArrayBlockingQueue<>(100));
         pool.execute(service01);
         pool.shutdown();
-        // и остальные методы ExecutorService
+
+
+        ExecutorService cachedService = Executors.newCachedThreadPool();
+        cachedService.execute(() -> {
+            System.out.println("Cached pool Fast Task");
+        });
+        cachedService.shutdown();
+
+        ExecutorService singlePool = Executors.newSingleThreadExecutor();
+        Future<String> taskResultContainer = singlePool.submit(new RequestTask());
+
+        // while (!taskResultContainer.isDone()){
+        // какие-то действия основного потока
+        // }
+
+        String result = null;
+        try {
+            // result = taskResultContainer.get();
+            result = taskResultContainer.get(1, TimeUnit.HOURS);
+        } catch (InterruptedException e) {
+            System.out.println("у ожидающего потока был вызван метод interrupt");
+        } catch (ExecutionException e) {
+            System.out.println("во время выполнения задачи было выброшено исключение");
+        } catch (TimeoutException e) {
+            System.out.println("main поток не смог дождаться завершения задачи");
+        }
+        System.out.println(result);
+
+        List<Future<String>> results = null;
+        try {
+            results = singlePool.invokeAll(
+                    Arrays.asList(new RequestTask(), new RequestTask()));
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
+        }
+        for (Future<String> future : results) {
+            try {
+                String res = future.get(11_000, TimeUnit.MILLISECONDS);
+                System.out.println(res);
+            } catch (InterruptedException |
+                     ExecutionException |
+                     TimeoutException e) {
+                throw new RuntimeException(e);
+            }
+        }
+        singlePool.shutdown();
+
+        // Executor
+        // ExecutorService
+        // ThreadPoolExecutor | ForkJoinPool
+        // Executors
+
+        int maxThreads = Runtime.getRuntime().availableProcessors();
+
+        ExecutorService stealingPool = Executors.newWorkStealingPool();
+        stealingPool.execute(()->{});
+        // ExecutorService stealingPool = Executors.newWorkStealingPool(3);
+        // t1 -> taskqueue
+        // t2 -> taskqueue
+        // t3 -> taskqueue
+
+        // и другие методы ExecutorService
+
 
     }
 }
